@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deteksi APD</title>
+    <style>
+        #results {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Deteksi APD</h1>
+    <img id="video" src="{{ url_for('video_feed') }}">
+    <div id="results"></div>
+    <script>
+        function fetchDetectionResults() {
+            fetch('/detection_results')
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            const className = item[0];
+                            const confidence = item[1];
+                            const resultText = `${className}: ${confidence.toFixed(2)}`;
+                            const resultElement = document.createElement('div');
+                            resultElement.textContent = resultText;
+                            resultsDiv.appendChild(resultElement);
+                        });
+                    } else {
+                        resultsDiv.textContent = 'No detections';
+                    }
+                })
+                .catch(error => console.error('Error fetching detection results:', error));
+        }
+
+        setInterval(fetchDetectionResults, 1000);
+    </script>
+</body>
+</html>
